@@ -26,8 +26,7 @@ RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf && \
 
 WORKDIR /var/www/html
 
-RUN chown -R www-data:www-data /var/www/html && \
-    echo 'fs.file-max = 65536' >> /etc/sysctl.conf
+RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
 
