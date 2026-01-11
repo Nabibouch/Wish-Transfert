@@ -1,4 +1,4 @@
-FROM php:8.1-apache
+FROM php:8.1-cli
 
 
 RUN apt-get update && apt-get install -y \
@@ -6,15 +6,6 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     && docker-php-ext-install pdo pdo_mysql zip
-
-
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.load \
- && rm -f /etc/apache2/mods-enabled/mpm_*.conf \
- && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
- && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
-
-
-RUN a2enmod rewrite
 
 
 RUN { \
@@ -30,12 +21,16 @@ RUN { \
 } > /usr/local/etc/php/conf.d/custom.ini
 
 
-RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf && \
-    echo 'LimitRequestBody 4294967296' >> /etc/apache2/apache2.conf && \
-    echo 'TimeOut 300' >> /etc/apache2/apache2.conf
+WORKDIR /app
 
-WORKDIR /var/www/html
-RUN chown -R www-data:www-data /var/www/html
+
+COPY . /app
+
+
+RUN chown -R www-data:www-data /app
+
 
 EXPOSE 80
-CMD ["apache2-foreground"]
+
+
+CMD ["php", "-S", "0.0.0.0:80", "-t", "/app"]
