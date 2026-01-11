@@ -6,7 +6,12 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-install pdo pdo_mysql zip
 
+RUN a2dismod mpm_event mpm_worker \
+ && a2enmod mpm_prefork
+
+
 RUN a2enmod rewrite
+
 
 RUN { \
     echo 'upload_max_filesize = 4G'; \
@@ -20,14 +25,13 @@ RUN { \
     echo 'opcache.max_accelerated_files = 4000'; \
 } > /usr/local/etc/php/conf.d/custom.ini
 
+
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf && \
     echo 'LimitRequestBody 4294967296' >> /etc/apache2/apache2.conf && \
     echo 'TimeOut 300' >> /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
-
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
-
 CMD ["apache2-foreground"]
